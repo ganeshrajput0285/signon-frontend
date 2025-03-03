@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Operator Sign-On</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        .container { max-width: 400px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); }
+        input, button, select { width: 100%; padding: 10px; margin-top: 10px; }
+        canvas { border: 1px solid #000; background-color: #fff; margin-top: 10px; }
+        video, img { width: 100%; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container" id="login-container">
+        <h2>Train Operator Sign-On</h2>
+        <input type="text" id="emp_id" placeholder="Employee ID">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+
+    <div class="container" id="signon-container" style="display: none;">
+        <h3>New Document / SOP</h3>
+        <div id="document">Safety Guidelines: Always check brakes before departure.</div>
+        <button onclick="acknowledge()">Acknowledge</button>
+
+        <h3>Breath Analyzer Test (Sign-On)</h3>
+        <select id="breath-test-signon">
+            <option value="pass">Pass</option>
+            <option value="fail">Fail</option>
+        </select>
+        <input type="text" id="ba-number" placeholder="Enter BA Test Number">
+
+        <h3>Capture Live Photo</h3>
+        <video id="video" autoplay></video>
+        <button onclick="capturePhoto()">Capture Photo</button>
+        <canvas id="canvas" style="display:none;"></canvas>
+        <img id="photo" style="display:none;"/>
+
+        <h3>Digital Signature</h3>
+        <canvas id="signature-pad" width="300" height="100"></canvas>
+        <button onclick="clearSignature()">Clear</button>
+        <button onclick="submitSignOn()">Submit Sign-On</button>
+    </div>
+
+    <div class="container" id="signoff-container" style="display: none;">
+        <h2>Sign Off</h2>
+        <h3>Breath Analyzer Test (Sign-Off)</h3>
+        <select id="breath-test-signoff">
+            <option value="pass">Pass</option>
+            <option value="fail">Fail</option>
+        </select>
+        <button onclick="submitSignOff()">Submit Sign-Off</button>
+    </div>
+
+    <script>
+        let isAcknowledged = false;
+
+        function login() {
+            let empId = document.getElementById('emp_id').value;
+            let password = document.getElementById('password').value;
+            if (empId && password) {
+                document.getElementById('login-container').style.display = 'none';
+                document.getElementById('signon-container').style.display = 'block';
+            } else {
+                alert("Please enter valid credentials.");
+            }
+        }
+
+        function acknowledge() {
+            isAcknowledged = true;
+            alert("Document acknowledged.");
+        }
+
+        function clearSignature() {
+            let canvas = document.getElementById('signature-pad');
+            let ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function capturePhoto() {
+            let video = document.getElementById("video");
+            let canvas = document.getElementById("canvas");
+            let photo = document.getElementById("photo");
+
+            let ctx = canvas.getContext("2d");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            photo.src = canvas.toDataURL("image/png");
+            photo.style.display = "block";
+        }
+
+        function submitSignOn() {
+            if (!isAcknowledged) {
+                alert("Please acknowledge the document first.");
+                return;
+            }
+
+            let breathTest = document.getElementById('breath-test-signon').value;
+            let baNumber = document.getElementById('ba-number').value;
+            if (breathTest === "fail") {
+                alert("Breath test failed! Cannot proceed.");
+                return;
+            }
+
+            alert("Sign-On Completed! Duty Started.");
+            document.getElementById('signon-container').style.display = 'none';
+            document.getElementById('signoff-container').style.display = 'block';
+        }
+
+        function submitSignOff() {
+            let breathTestSignoff = document.getElementById('breath-test-signoff').value;
+            alert("Sign-Off Completed! Duty Ended. Breathalyzer Result: " + breathTestSignoff);
+        }
+    </script>
+</body>
+</html>
